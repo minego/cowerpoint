@@ -14,6 +14,11 @@ var Slides = function() {
 		}
 	}.bind(this), false);
 
+	window.addEventListener('keydown', function(e) {
+		e.stopPropagation();
+		e.preventDefault();
+		return false;
+	});
 	window.addEventListener('keyup', function(e) {
 		e.preventDefault();
 
