@@ -15,9 +15,16 @@ var Slides = function() {
 	}.bind(this), false);
 
 	window.addEventListener('keydown', function(e) {
-		e.stopPropagation();
-		e.preventDefault();
-		return false;
+		switch (e.keyCode) {
+		case 37: /* left	*/
+		case 38: /* up		*/
+		case 39: /* right	*/
+		case 40: /* down	*/
+			e.stopPropagation();
+			e.preventDefault();
+			return false;
+			break;
+		}
 	});
 	window.addEventListener('keyup', function(e) {
 		e.preventDefault();
