@@ -59,7 +59,7 @@ var Slides = function() {
 	window.addEventListener('click', function(e) {
 		e.preventDefault();
 
-		if (e.button == 0) {
+		if (e.button === 0) {
 			this.next();
 		}
 	}.bind(this), false);
@@ -139,8 +139,15 @@ show: function show(index, instant, backwards)
 		newslide.scrollTop = oldslide.scrollTop;
 	}
 
-	if ((striptease = newslide.querySelector('.striptease'))) {
-		for (var i = 0, c; c = striptease.childNodes[i]; i++) {
+	striptease = newslide.querySelectorAll('.skin');
+	if ((!striptease || !striptease.length) &&
+		(striptease = newslide.querySelector('.striptease'))
+	) {
+		striptease = striptease.childNodes;
+	}
+
+	if (striptease && striptease.length) {
+		for (var i = 0, c; c = striptease[i]; i++) {
 			if (!c.classList) {
 				continue;
 			}
