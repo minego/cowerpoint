@@ -15,17 +15,25 @@ var Slides = function() {
 	}.bind(this), false);
 
 	window.addEventListener('keydown', function(e) {
+		switch (e.which) {
+			case 32: /* space */
+				e.stopPropagation();
+				e.preventDefault();
+				return false;
+		}
+
 		switch (e.keyCode) {
-		case 37: /* left	*/
-		case 38: /* up		*/
-		case 39: /* right	*/
-		case 40: /* down	*/
-			e.stopPropagation();
-			e.preventDefault();
-			return false;
-			break;
+			case 37: /* left	*/
+			case 38: /* up		*/
+			case 39: /* right	*/
+			case 40: /* down	*/
+			case 32: /* space	*/
+				e.stopPropagation();
+				e.preventDefault();
+				return false;
 		}
 	});
+
 	window.addEventListener('keyup', function(e) {
 		e.preventDefault();
 
@@ -43,7 +51,7 @@ var Slides = function() {
 
 			case 39: /* right	*/
 			case 40: /* down	*/
-				this.next();
+				this.next(true);
 				break;
 		}
 	}.bind(this), false);
@@ -150,12 +158,19 @@ show: function show(index, instant, backwards)
 	window.location.hash = '#' + this.showing;
 },
 
-next: function next()
+next: function next(instant)
 {
 	var		child;
 
 	if (this.striptease && (child = this.striptease.shift())) {
 		child.classList.remove('hidden');
+
+		if (instant) {
+			/* Show all */
+			while ((child = this.striptease.shift())) {
+				child.classList.remove('hidden');
+			}
+		}
 	} else {
 		this.show(this.showing + 1);
 	}
