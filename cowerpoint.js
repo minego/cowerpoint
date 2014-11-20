@@ -80,10 +80,11 @@ var Slides = function() {
 
 Slides.prototype = {
 
-show: function show(index, instant)
+show: function show(index, instant, backwards)
 {
 	var oldslide	= null;
 	var newslide;
+	var striptease;
 
 	if (isNaN(index)) {
 		index = 0;
@@ -92,6 +93,8 @@ show: function show(index, instant)
 	if (index == this.showing || !(newslide = this.slides[index])) {
 		return;
 	}
+
+	this.striptease = [];
 
 	if (!isNaN(this.showing)) {
 		oldslide = this.slides[this.showing];
@@ -128,19 +131,40 @@ show: function show(index, instant)
 		newslide.scrollTop = oldslide.scrollTop;
 	}
 
+	if ((striptease = newslide.querySelector('.striptease'))) {
+		for (var i = 0, c; c = striptease.childNodes[i]; i++) {
+			if (!c.classList) {
+				continue;
+			}
+
+			if (!backwards) {
+				c.classList.add('hidden');
+				this.striptease.push(c);
+			} else {
+				c.classList.remove('hidden');
+			}
+		}
+	}
+
 	this.showing = index;
 	window.location.hash = '#' + this.showing;
 },
 
 next: function next()
 {
-	this.show(this.showing + 1);
+	var		child;
+
+	if (this.striptease && (child = this.striptease.shift())) {
+		child.classList.remove('hidden');
+	} else {
+		this.show(this.showing + 1);
+	}
 },
 
 prev: function prev()
 {
 	if (this.showing > 0) {
-		this.show(this.showing - 1);
+		this.show(this.showing - 1, undefined, true);
 	}
 }
 
