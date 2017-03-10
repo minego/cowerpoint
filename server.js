@@ -66,6 +66,11 @@ io.on("connection", function(socket) {
 		io.emit("remotein");
 	});
 
+	socket.on("buzz", function(data) {
+		if(allowed[socket.id] === data) {
+			io.emit("buzz");
+		}
+	});
 	socket.on("next", function(data) {
 		if(allowed[socket.id] === data) {
 			io.emit("next");

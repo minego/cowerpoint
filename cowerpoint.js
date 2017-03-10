@@ -28,6 +28,7 @@ var Slides = function() {
 			case 39: /* right	*/
 			case 40: /* down	*/
 			case 32: /* space	*/
+			case 83: /* s       */
 				e.stopPropagation();
 				e.preventDefault();
 				return false;
@@ -52,6 +53,9 @@ var Slides = function() {
 			case 39: /* right	*/
 			case 40: /* down	*/
 				this.next(true);
+				break;
+			case 83: /* s       */
+				this.buzz();
 				break;
 		}
 	}.bind(this), false);
@@ -92,6 +96,9 @@ var Slides = function() {
 		}.bind(this));
 		socket.on("remoteout", function(data) {
 			console.log("Remote disconnected");
+		}.bind(this));
+		socket.on("buzz", function(data) {
+			this.buzz();
 		}.bind(this));
 		socket.on("next", function(data) {
 			this.next();
@@ -209,8 +216,22 @@ prev: function prev()
 	if (this.showing > 0) {
 		this.show(this.showing - 1, undefined, true);
 	}
-}
+},
 
+buzz: function buzz()
+{
+	var popup = document.querySelector("#buzzer");
+	var audio = document.querySelector("#buzzer audio");
+	if(popup) {
+		if(audio) {
+			audio.play();
+		}
+	}
+	popup.className = "visible";
+	window.setTimeout(function() {
+		popup.className = "";
+	}, 2000);
+}
 
 };
 
