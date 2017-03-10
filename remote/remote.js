@@ -3,9 +3,12 @@ window.addEventListener("load", function() {
 	var token = "";
 	var password = document.querySelector("#password");
 	var connect = document.querySelector("#connect");
+	var buzz = document.querySelector("#buzz");
 	var next = document.querySelector("#next");
 	var back = document.querySelector("#back");
 	var forward = document.querySelector("#forward");
+
+	password.focus();
 
 	try {
 		socket = io();
@@ -36,6 +39,9 @@ window.addEventListener("load", function() {
 		}));
 	});
 
+	buzz.addEventListener("click", function() {
+		socket.emit("buzz", token);
+	});
 	next.addEventListener("click", function() {
 		socket.emit("next", token);
 	});
