@@ -28,7 +28,7 @@ window.addEventListener("load", function() {
 				document.querySelector("#auth").classList.toggle("hidden", true);
 				document.querySelector("#control").classList.toggle("hidden", false);
 			} else {
-				console.log("Nope.");
+				alert("Nope.");
 			}
 		};
 		r.send(JSON.stringify({

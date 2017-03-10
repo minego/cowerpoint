@@ -11,7 +11,7 @@ app.get("*", function(req, res) {
 	if(req.url.indexOf("/.") >= 0) {
 		res.send("nope.");
 	} else {
-		console.log(req.url);
+		//console.log(req.url);
 		res.sendFile(__dirname + req.url);
 	}
 });
@@ -19,7 +19,7 @@ app.get("*", function(req, res) {
 app.post("/remote/connect", function(req, res) {
 	var data = [];
 	req.on("data", function(chunk) {
-		console.log("chunk:", chunk.toString());
+		//console.log("chunk:", chunk.toString());
 		data.push(chunk.toString());
 	});
 	req.on("end", function() {
