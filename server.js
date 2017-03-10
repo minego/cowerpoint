@@ -12,7 +12,7 @@ app.get("*", function(req, res) {
 		res.send("nope.");
 	} else {
 		//console.log(req.url);
-		res.sendFile(__dirname + req.url);
+		res.sendFile(process.cwd() + req.url);
 	}
 });
 
