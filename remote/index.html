@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<title>cowerpoint remote</title>
+	<meta name="theme-color" content="#888">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="width=device-width"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="remote.js"></script>
+	<style>
+	  body {
+	  font-family: sans-serif;
+	  }
+	  #control button {
+	  font-size: 10vw;
+	  height: 40vh;
+	  }
+	  #next {
+	  width: 100%;
+	  }
+	  #back, #forward {
+	  width: 50%;
+	  }
+	  .hidden {
+	  display: none;
+	  }
+	</style>
+  </head>
+  <body>
+	<div id="offline">
+	  Remote is not available for this CowerPoint presentation.
+	</div>
+	<div id="auth" class="hidden">
+	  <label>
+		Password:
+		<input id="password" type="password">
+	  </label>
+	  <button id="connect">Connect</button>
+	</div>
+	<div id="control" class="hidden">
+	  <button id="back">&larr;</button><button id="forward">&rarr;</button>
+	  <button id="next">Next</button>
+	</div>
+  </body>
+</html>

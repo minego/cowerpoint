@@ -84,6 +84,27 @@ var Slides = function() {
 	for (var i = 0; i <= index; i++) {
 		this.show(i, true);
 	}
+
+	try {
+		socket = io();
+		socket.on("remotein", function(data) {
+			console.log("Remote connected");
+		}.bind(this));
+		socket.on("remoteout", function(data) {
+			console.log("Remote disconnected");
+		}.bind(this));
+		socket.on("next", function(data) {
+			this.next();
+		}.bind(this));
+		socket.on("back", function(data) {
+			this.prev();
+		}.bind(this));
+		socket.on("forward", function(data) {
+			this.next(true);
+		}.bind(this));
+	} catch(ignore) {
+		console.log("Remote unavailable");
+	}
 };
 
 Slides.prototype = {
@@ -196,4 +217,3 @@ prev: function prev()
 window.addEventListener('load', function() {
 	var slides	= new Slides();
 }, false);
-
