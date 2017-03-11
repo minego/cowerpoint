@@ -129,6 +129,9 @@ show: function show(index, instant, backwards)
 		index = 0;
 	}
 
+	this.showing = parseInt(this.showing);
+	index = parseInt(index);
+
 	if (index == this.showing || !(newslide = this.slides[index])) {
 		return;
 	}
