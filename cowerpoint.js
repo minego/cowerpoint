@@ -4,6 +4,8 @@ var Slides = function() {
 
 	this.slides		= document.querySelectorAll("#slides > div");
 	this.showing	= NaN;
+	this.stripcount	= 0;
+	this.curslide	= null;
 
 
 	window.addEventListener('hashchange', function(e) {
@@ -79,7 +81,7 @@ var Slides = function() {
 
 	index = parseInt(window.location.hash.slice(1));
 	if (isNaN(index)) {
-		index = 0;
+		index = 1;
 	}
 
 	/*
@@ -141,113 +143,152 @@ var Slides = function() {
 
 Slides.prototype = {
 
+selectSlide: function selectSlide(index)
+{
+	var count		= index;
+	var slideidx	= 0;
+	var slide;
+	var striptease;
+
+	/*
+		A slide may have multiple frames. Take that into account while finding
+		the appropriate slide based on the specified index.
+	*/
+	for (;;) {
+		slide = this.slides[slideidx++];
+
+		if (!slide) {
+			return(null);
+		}
+
+		/* Count the slide itself */
+		count -= 1;
+
+		this.striptease = [];
+
+		striptease = slide.querySelectorAll('.skin');
+		if ((!striptease || !striptease.length) &&
+			(striptease = slide.querySelector('.striptease'))
+		) {
+			striptease = striptease.childNodes;
+		}
+
+		if (striptease) {
+			for (var i = 0, s; s = striptease[i]; i++) {
+				if (s && s.nodeName && "#text" !== s.nodeName) {
+					this.striptease.push(s);
+				}
+			}
+		}
+
+		count -= this.striptease.length;
+		if (count <= 0) {
+			this.stripcount = this.striptease.length + count;
+
+			return(slide);
+		}
+	}
+},
+
 show: function show(index, instant, backwards)
 {
-	var oldslide	= null;
+	var oldslide	= this.curslide;
+	var oldindex	= this.showing;
 	var newslide;
 	var striptease;
 
 	if (isNaN(index)) {
-		index = 0;
+		index = 1;
 	}
-
-	this.showing = parseInt(this.showing);
 	index = parseInt(index);
 
-	if (index == this.showing || !(newslide = this.slides[index])) {
+	if (!(newslide = this.selectSlide(index))) {
 		return;
-	}
-
-	this.striptease = [];
-
-	if (!isNaN(this.showing)) {
-		oldslide = this.slides[this.showing];
 	}
 
 	/*
 		Determine if this slide should be animated or instant. If either the new
 		or old slide is marked as "instant" then disable the animation.
 	*/
-	if ((newslide && newslide.classList.contains("instant")) ||
-		(oldslide && oldslide.classList.contains("instant")) ||
-		instant
-	) {
+	if (newslide !== oldslide) {
 		newslide.classList.remove("slidein");
-		if (oldslide) oldslide.classList.remove("slidein");
-	} else {
-		newslide.classList.add("slidein");
-		if (oldslide) oldslide.classList.add("slidein");
-	}
-
-	if (oldslide) {
-		if (this.showing < index) {
-			oldslide.style.left		= '-200%';
+		if (oldindex < index) {
+			newslide.style.left = '200%';
 		} else {
-			oldslide.style.left		= '200%';
+			newslide.style.left = '-200%';
 		}
-		oldslide.style.overflowY	= 'hidden';
+
+		setTimeout(function() {
+			if ((newslide && newslide.classList.contains("instant")) ||
+				(oldslide && oldslide.classList.contains("instant")) ||
+				instant
+			) {
+				newslide.classList.remove("slidein");
+				if (oldslide) oldslide.classList.remove("slidein");
+			} else {
+				newslide.classList.add("slidein");
+				if (oldslide) oldslide.classList.add("slidein");
+			}
+
+			if (oldslide) {
+				if (oldindex < index) {
+					oldslide.style.left		= '-200%';
+				} else {
+					oldslide.style.left		= '200%';
+				}
+				oldslide.style.overflowY	= 'hidden';
+			}
+
+			newslide.style.left			= '0px';
+			newslide.style.overflowY	= 'auto';
+
+			if (newslide && oldslide) {
+				newslide.scrollTop = oldslide.scrollTop;
+			}
+		}, 1);
 	}
 
-	newslide.style.left			= '0px';
-	newslide.style.overflowY	= 'auto';
-
-	if (newslide && oldslide) {
-		newslide.scrollTop = oldslide.scrollTop;
-	}
-
-	striptease = newslide.querySelectorAll('.skin');
-	if ((!striptease || !striptease.length) &&
-		(striptease = newslide.querySelector('.striptease'))
-	) {
-		striptease = striptease.childNodes;
-	}
-
-	if (striptease && striptease.length) {
-		for (var i = 0, c; c = striptease[i]; i++) {
+	if (this.striptease && this.striptease.length) {
+		for (var i = 0, c; c = this.striptease[i]; i++) {
 			if (!c.classList) {
 				continue;
 			}
 
-			if (!backwards) {
-				c.classList.add('hidden');
-				this.striptease.push(c);
-			} else {
+			if (i < this.stripcount) {
 				c.classList.remove('hidden');
+			} else {
+				c.classList.add('hidden');
 			}
 		}
 	}
 
-	this.showing = index;
-	window.location.hash = '#' + this.showing;
+	this.curslide			= newslide;
+	this.showing			= index;
+	window.location.hash	= '#' + index;
 },
 
 next: function next(instant, page)
 {
-	var		child;
-
-	if (this.striptease && (child = this.striptease.shift())) {
-		child.classList.remove('hidden');
-
-		if (instant) {
-			/* Show all */
-			while ((child = this.striptease.shift())) {
-				child.classList.remove('hidden');
-			}
-		}
+	if (!isNaN(page)) {
+		this.show(page);
 	} else {
-		if (!isNaN(page)) {
-			this.show(page);
-		} else {
-			this.show(this.showing + 1);
-		}
+		this.show(this.showing + 1);
 	}
+
+if (false) { /* Instant causes problems with the remote... */
+
+	if (instant) {
+		/* Expose all striptease items right away */
+		this.show(this.showing + (this.striptease.length - this.stripcount));
+	}
+}
 },
 
 prev: function prev(page)
 {
 	if (!isNaN(page)) {
 		this.show(page, undefined, true);
-	} else if (this.showing > 0) {
+	} else if (this.showing > 1) {
 		this.show(this.showing - 1, undefined, true);
 	}
 },
