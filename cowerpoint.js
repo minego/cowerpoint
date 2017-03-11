@@ -12,7 +12,7 @@ var Slides = function() {
 		var index = parseInt(window.location.hash.slice(1));
 
 		if (!isNaN(index)) {
-			this.show(index);
+			this.show(index, true);
 		}
 	}.bind(this), false);
 
@@ -54,7 +54,7 @@ var Slides = function() {
 
 			case 39: /* right	*/
 			case 40: /* down	*/
-				this.next(true);
+				this.next();
 				break;
 			case 83: /* s       */
 				this.buzz();
@@ -106,13 +106,13 @@ var Slides = function() {
 			this.buzz();
 		}.bind(this));
 		socket.on("next", function(data) {
-			this.next(false, data.page);
+			this.next(data.page);
 		}.bind(this));
 		socket.on("back", function(data) {
 			this.prev(data.page);
 		}.bind(this));
 		socket.on("forward", function(data) {
-			this.next(true, data.page);
+			this.next(data.page);
 		}.bind(this));
 		socket.on("show", function(data) {
 			this.show(data.page, true);
@@ -143,7 +143,7 @@ var Slides = function() {
 
 Slides.prototype = {
 
-selectSlide: function selectSlide(index)
+selectSlide: function selectSlide(index, select)
 {
 	var count		= index;
 	var slideidx	= 0;
@@ -158,13 +158,17 @@ selectSlide: function selectSlide(index)
 		slide = this.slides[slideidx++];
 
 		if (!slide) {
+			if (select) {
+				this.striptease = [];
+				this.stripcount = 0;
+			}
 			return(null);
 		}
 
 		/* Count the slide itself */
 		count -= 1;
 
-		this.striptease = [];
+		var items = [];
 
 		striptease = slide.querySelectorAll('.skin');
 		if ((!striptease || !striptease.length) &&
@@ -176,33 +180,41 @@ selectSlide: function selectSlide(index)
 		if (striptease) {
 			for (var i = 0, s; s = striptease[i]; i++) {
 				if (s && s.nodeName && "#text" !== s.nodeName) {
-					this.striptease.push(s);
+					items.push(s);
 				}
 			}
 		}
 
-		count -= this.striptease.length;
+		count -= items.length;
 		if (count <= 0) {
-			this.stripcount = this.striptease.length + count;
+			if (select) {
+				this.stripcount = items.length + count;
+				this.striptease = items;
+			}
 
 			return(slide);
 		}
 	}
 },
 
-show: function show(index, instant, backwards)
+show: function show(index, instant, oldindex)
 {
-	var oldslide	= this.curslide;
-	var oldindex	= this.showing;
+	var oldslide;
 	var newslide;
 	var striptease;
 
+	if (isNaN(oldindex)) {
+		oldindex = this.showing;
+	}
+
+	oldslide = this.selectSlide(oldindex, false);
+
+	index = parseInt(index);
 	if (isNaN(index)) {
 		index = 1;
 	}
-	index = parseInt(index);
 
-	if (!(newslide = this.selectSlide(index))) {
+	if (!(newslide = this.selectSlide(index, true))) {
 		return;
 	}
 
@@ -211,6 +223,8 @@ show: function show(index, instant, backwards)
 		or old slide is marked as "instant" then disable the animation.
 	*/
 	if (newslide !== oldslide) {
+		console.log("Slide:", oldindex, index);
+
 		newslide.classList.remove("slidein");
 		if (oldindex < index) {
 			newslide.style.left = '200%';
@@ -218,34 +232,36 @@ show: function show(index, instant, backwards)
 			newslide.style.left = '-200%';
 		}
 
-		setTimeout(function() {
-			if ((newslide && newslide.classList.contains("instant")) ||
-				(oldslide && oldslide.classList.contains("instant")) ||
-				instant
-			) {
-				newslide.classList.remove("slidein");
-				if (oldslide) oldslide.classList.remove("slidein");
+		if ((newslide && newslide.classList.contains("instant")) ||
+			(oldslide && oldslide.classList.contains("instant")) ||
+			instant
+		) {
+			newslide.classList.remove("slidein");
+			if (oldslide) oldslide.classList.remove("slidein");
+		} else {
+			newslide.classList.add("slidein");
+			if (oldslide) oldslide.classList.add("slidein");
+		}
+
+		var seen = false;
+		for (var i = 0, s; s = this.slides[i]; i++) {
+			if (s === newslide) {
+				newslide.style.left		= '0px';
+				newslide.style.overflowY= 'auto';
+
+				seen					= true;
+			} else if (!seen) {
+				s.style.left			= '-200%';
+				s.style.overflowY		= 'hidden';
 			} else {
-				newslide.classList.add("slidein");
-				if (oldslide) oldslide.classList.add("slidein");
+				s.style.left			= '200%';
+				s.style.overflowY		= 'hidden';
 			}
+		}
 
-			if (oldslide) {
-				if (oldindex < index) {
-					oldslide.style.left		= '-200%';
-				} else {
-					oldslide.style.left		= '200%';
-				}
-				oldslide.style.overflowY	= 'hidden';
-			}
-
-			newslide.style.left			= '0px';
-			newslide.style.overflowY	= 'auto';
-
-			if (newslide && oldslide) {
-				newslide.scrollTop = oldslide.scrollTop;
-			}
-		}, 1);
+		if (newslide && oldslide) {
+			newslide.scrollTop = oldslide.scrollTop;
+		}
 	}
 
 	if (this.striptease && this.striptease.length) {
@@ -267,29 +283,21 @@ show: function show(index, instant, backwards)
 	window.location.hash	= '#' + index;
 },
 
-next: function next(instant, page)
+next: function next(page)
 {
 	if (!isNaN(page)) {
-		this.show(page);
+		this.show(page, false, page - 1);
 	} else {
-		this.show(this.showing + 1);
+		this.show(this.showing + 1, false, this.showing);
 	}
-
-if (false) { /* Instant causes problems with the remote... */
-
-	if (instant) {
-		/* Expose all striptease items right away */
-		this.show(this.showing + (this.striptease.length - this.stripcount));
-	}
-}
 },
 
 prev: function prev(page)
 {
 	if (!isNaN(page)) {
-		this.show(page, undefined, true);
+		this.show(page, false, page + 1);
 	} else if (this.showing > 1) {
-		this.show(this.showing - 1, undefined, true);
+		this.show(this.showing - 1, false, this.showing);
 	}
 },
 
