@@ -61,6 +61,9 @@ var Slides = function() {
 	}.bind(this), false);
 
 	window.addEventListener('click', function(e) {
+		if (e && e.target && 'A' == e.target.nodeName) {
+			return;
+		}
 		e.preventDefault();
 
 		if (e.button === 0) {
