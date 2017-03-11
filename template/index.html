@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+	<head>
+		<!-- Put your own title here -->
+		<title>cowerpoint</title>
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="viewport" content="initial-scale=1.0,user-scalable=no" />
+
+		<!-- CSS if you want to make your own -->
+		<link rel="stylesheet" href="cowerpoint/cowerpoint.css" charset="utf-8" />
+		<!-- Include the Cowerpoint script -->
+		<script src="/socket.io/socket.io.js"></script> <!-- for remote -->
+		<script type="text/javascript" src="cowerpoint/cowerpoint.js"></script>
+	</head>
+
+	<body>
+		<div id="slides">
+			<!-- First slide -->
+			<div>
+				<!-- First slide title -->
+				<h1>Cowerpoint</h1>
+				<h3>
+					Hide the tedium of slide presentations in the comfort and
+					safety of your favorite browser.
+				</h3>
+
+				<center><img src="cowerpoint.png" width=200></center>
+
+				<p>
+					This is cowerpoint. It is meant to be a very simple way to
+					create presentations because your boss insists that you talk
+					in front of people.
+				</p>
+
+				<p>
+					Click anywhere to go to the next slide.
+				</p>
+			</div>
+			<!-- End of first slide -->
+			<div>
+				<h3>Hey, another slide!</h3>
+
+				<p>You can also use the arrow keys to go between slides</p>
+			</div>
+			<div>
+				<h3>Really getting up to speed now</h3>
+
+				<p>Right click takes you back</p>
+			</div>
+			<div class="instant">
+				<h3>Easy to edit</h3>
+
+				<p>
+					Just add a div for each slide. Add your own CSS to make it
+					pretty (or don't).
+				</p>
+
+				<p>
+					Give a div <strong>class="instant"</strong> to have it
+					skip the animated transition.
+				</p>
+			</div>
+			<div>
+				<h3>Thanks</h3>
+
+				<p>That's really about it.</p>
+
+				<center><img src="cowerpoint/suckitdan.svg" width=200></center>
+			</div>
+		</div>
+		<div id="buzzer"><div id="buzzermiddle">
+			<img src="cowerpoint/suckitdan.svg">
+			<audio preload="auto">
+			  <source src="cowerpoint/buzzer.ogg" type="audio/ogg" />
+			  <source src="cowerpoint/buzzer.mp3" type="audio/mp3" />
+			</audio>
+		</div></div>
+	</body>
+</html>

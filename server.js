@@ -7,12 +7,21 @@ var crypto = require("crypto");
 var pending = "";  //pending token for allowed (one at a time!)
 var allowed = {};  //(socket id): (allowed token)
 
+var showing	= NaN; //Currently showing page if a remote is connected
+
 app.get("*", function(req, res) {
 	if(req.url.indexOf("/.") >= 0) {
 		res.send("nope.");
 	} else {
 		//console.log(req.url);
-		res.sendFile(__dirname + req.url);
+
+		fs.stat(process.cwd() + req.url, (err, stat) => {
+			if (!err) {
+				res.sendFile(process.cwd() + req.url);
+			} else {
+				res.sendFile(__dirname + req.url);
+			}
+		});
 	}
 });
 
@@ -58,8 +67,12 @@ io.on("connection", function(socket) {
 	//socket.broadcast.emit("to everyone else", data);
 	//io.sockets.connected[id].emit("to one client", data);
 
+	if (!isNaN(showing)) {
+		socket.emit("show", { "page": showing });
+	}
+
 	socket.on("auth", function(data) {
-		if(data === pending) {
+		if(data && data.token === pending) {
 			allowed[socket.id] = pending;
 			pending = "";
 		}
@@ -67,23 +80,32 @@ io.on("connection", function(socket) {
 	});
 
 	socket.on("buzz", function(data) {
-		if(allowed[socket.id] === data) {
+		if(data && allowed[socket.id] === data.token) {
 			io.emit("buzz");
 		}
 	});
+	socket.on("show", function(data) {
+		if(data && allowed[socket.id] === data.token) {
+			showing = data.page;
+			io.emit("show", { "page": showing });
+		}
+	});
 	socket.on("next", function(data) {
-		if(allowed[socket.id] === data) {
-			io.emit("next");
+		if(data && allowed[socket.id] === data.token) {
+			showing = data.page;
+			io.emit("next", { "page": showing });
 		}
 	});
 	socket.on("back", function(data) {
-		if(allowed[socket.id] === data) {
-			io.emit("back");
+		if(data && allowed[socket.id] === data.token) {
+			showing = data.page;
+			io.emit("back", { "page": showing });
 		}
 	});
 	socket.on("forward", function(data) {
-		if(allowed[socket.id] === data) {
-			io.emit("forward");
+		if(data && allowed[socket.id] === data.token) {
+			showing = data.page;
+			io.emit("forward", { "page": showing });
 		}
 	});
 

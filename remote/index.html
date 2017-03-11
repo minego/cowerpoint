@@ -17,6 +17,10 @@
 	  font-size: 10vw;
 	  height: 35vh;
 	  }
+	  #control #page {
+	  width: 50px;
+	  }
+	  #control button#show,
 	  #control button#buzz {
 	  font-size: 4vw;
 	  height: 10vh;
@@ -44,7 +48,11 @@
 	  <button id="connect">Connect</button>
 	</div>
 	<div id="control" class="hidden">
-	  <button id="buzz">Buzz</button><br><br>
+      <input id="page" type="text" value="0">
+	  <button id="show">Goto</button>
+	  <button id="buzz">Buzz</button>
+
+      <br><br>
 	  <button id="back">&larr;</button><button id="forward">&rarr;</button>
 	  <button id="next">Next</button>
 	</div>

@@ -1,0 +1,4 @@
+{
+	"_comment-password": "set to allow /remote/ connections to control",
+	"password": "secret"
+}
