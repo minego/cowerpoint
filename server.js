@@ -14,7 +14,14 @@ app.get("*", function(req, res) {
 		res.send("nope.");
 	} else {
 		//console.log(req.url);
-		res.sendFile(process.cwd() + req.url);
+
+		fs.stat(process.cwd() + req.url, (err, stat) => {
+			if (!err) {
+				res.sendFile(process.cwd() + req.url);
+			} else {
+				res.sendFile(__dirname + req.url);
+			}
+		});
 	}
 });
 
