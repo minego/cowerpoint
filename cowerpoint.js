@@ -225,37 +225,48 @@ show: function show(index, instant, oldindex)
 	if (newslide !== oldslide) {
 		console.log("Slide:", oldindex, index);
 
-		newslide.classList.remove("slidein");
-		if (oldindex < index) {
-			newslide.style.left = '200%';
-		} else {
-			newslide.style.left = '-200%';
+		var seen = false;
+
+		for (var i = 0, s; s = this.slides[i]; i++) {
+			s.classList.remove("slidein");
+
+			if (s === oldslide) {
+				s.style.left		= '0px';
+				s.style.overflowY	= 'auto';
+
+				seen				= true;
+			} else if (!seen) {
+				s.style.left		= '-200%';
+				s.style.overflowY	= 'hidden';
+			} else {
+				s.style.left		= '200%';
+				s.style.overflowY	= 'hidden';
+			}
 		}
 
 		if ((newslide && newslide.classList.contains("instant")) ||
-			(oldslide && oldslide.classList.contains("instant")) ||
-			instant
+			(oldslide && oldslide.classList.contains("instant"))
 		) {
-			newslide.classList.remove("slidein");
-			if (oldslide) oldslide.classList.remove("slidein");
-		} else {
-			newslide.classList.add("slidein");
-			if (oldslide) oldslide.classList.add("slidein");
+			instant = true;
 		}
 
-		var seen = false;
+		seen = false;
 		for (var i = 0, s; s = this.slides[i]; i++) {
-			if (s === newslide) {
-				newslide.style.left		= '0px';
-				newslide.style.overflowY= 'auto';
+			if (!instant) {
+				s.classList.add("slidein");
+			}
 
-				seen					= true;
+			if (s === newslide) {
+				s.style.left		= '0px';
+				s.style.overflowY	= 'auto';
+
+				seen				= true;
 			} else if (!seen) {
-				s.style.left			= '-200%';
-				s.style.overflowY		= 'hidden';
+				s.style.left		= '-200%';
+				s.style.overflowY	= 'hidden';
 			} else {
-				s.style.left			= '200%';
-				s.style.overflowY		= 'hidden';
+				s.style.left		= '200%';
+				s.style.overflowY	= 'hidden';
 			}
 		}
 
