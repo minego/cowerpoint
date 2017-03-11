@@ -69,10 +69,6 @@ window.addEventListener("load", function() {
 	show.addEventListener("click", function() {
 		socket.emit("show", { "token": token, "page": page.value });
 	});
-	next.addEventListener("click", function() {
-		page.value++;
-		socket.emit("next", { "token": token, "page": page.value });
-	});
 	back.addEventListener("click", function() {
 		if (page.value > 0) {
 			page.value--;
