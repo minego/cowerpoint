@@ -3,7 +3,9 @@ window.addEventListener("load", function() {
 	var token = "";
 	var password = document.querySelector("#password");
 	var connect = document.querySelector("#connect");
+	var page = document.querySelector("#page");
 	var buzz = document.querySelector("#buzz");
+	var show = document.querySelector("#show");
 	var next = document.querySelector("#next");
 	var back = document.querySelector("#back");
 	var forward = document.querySelector("#forward");
@@ -27,7 +29,7 @@ window.addEventListener("load", function() {
 			console.log(res);
 			if(res.token) {
 				token = res.token;
-				socket.emit("auth", token);
+				socket.emit("auth", { "token": token });
 				document.querySelector("#auth").classList.toggle("hidden", true);
 				document.querySelector("#control").classList.toggle("hidden", false);
 			} else {
@@ -40,15 +42,34 @@ window.addEventListener("load", function() {
 	});
 
 	buzz.addEventListener("click", function() {
-		socket.emit("buzz", token);
+		socket.emit("buzz", { "token": token });
+	});
+	show.addEventListener("click", function() {
+		socket.emit("show", { "token": token, "page": page.value });
 	});
 	next.addEventListener("click", function() {
-		socket.emit("next", token);
+		page.value++;
+		socket.emit("next", { "token": token, "page": page.value });
 	});
 	back.addEventListener("click", function() {
-		socket.emit("back", token);
+		if (page.value > 0) {
+			page.value--;
+		}
+		socket.emit("back", { "token": token, "page": page.value });
 	});
 	forward.addEventListener("click", function() {
-		socket.emit("forward", token);
+		page.value++;
+		socket.emit("forward", { "token": token, "page": page.value });
 	});
+
+	var pagechange = function pagechange(data) {
+		if (data && !isNaN(data.page)) {
+			page.value = data.page;
+		}
+	};
+
+	socket.on("show", pagechange);
+	socket.on("next", pagechange);
+	socket.on("back", pagechange);
+	socket.on("forward", pagechange);
 });

@@ -101,13 +101,16 @@ var Slides = function() {
 			this.buzz();
 		}.bind(this));
 		socket.on("next", function(data) {
-			this.next();
+			this.next(false, data.page);
 		}.bind(this));
 		socket.on("back", function(data) {
-			this.prev();
+			this.prev(data.page);
 		}.bind(this));
 		socket.on("forward", function(data) {
-			this.next(true);
+			this.next(true, data.page);
+		}.bind(this));
+		socket.on("show", function(data) {
+			this.show(data.page, true);
 		}.bind(this));
 	} catch(ignore) {
 		console.log("Remote unavailable");
@@ -193,7 +196,7 @@ show: function show(index, instant, backwards)
 	window.location.hash = '#' + this.showing;
 },
 
-next: function next(instant)
+next: function next(instant, page)
 {
 	var		child;
 
@@ -207,13 +210,19 @@ next: function next(instant)
 			}
 		}
 	} else {
-		this.show(this.showing + 1);
+		if (!isNaN(page)) {
+			this.show(page);
+		} else {
+			this.show(this.showing + 1);
+		}
 	}
 },
 
-prev: function prev()
+prev: function prev(page)
 {
-	if (this.showing > 0) {
+	if (!isNaN(page)) {
+		this.show(page, undefined, true);
+	} else if (this.showing > 0) {
 		this.show(this.showing - 1, undefined, true);
 	}
 },
