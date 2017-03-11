@@ -4,14 +4,47 @@ cowerpoint
 Hide from the tedium of slide presentations in the comfort and safety of your favorite browser
 
 
-server and remote
------------------
 
-you may run your presentation from its own node server thusly:
-  npm install --save socket.io express
-  node server.js
-then present it at:
-  http://{your computer}:1234
-and control it from another device at:
-  http://{your computer}:1234/remote/
-by using the password as configured in "config.json".
+Using cowerpoint to write your own presentation
+-----------------------------------------------
+
+1) Clone powerpoint:
+	git clone git@github.com:minego/cowerpoint.git
+
+1a) Or, if you're putting your presentation in a git repo, add cowerpoint as
+a submodule:
+	git submodule add git@github.com:minego/cowerpoint.git cowerpoint
+	git submodule update --init --recursive
+
+2) Copy the template files from cowerpoint:
+	cp cowerpoint/template/* .
+
+3) Open index.html in an editor, find the "slides" container, and replace our
+silly example slides with your own brilliant inspiring and beautiful slides.
+
+4) If you only need to view cowerpoint locally (no remote) then simply open your
+new index.html in a browser and you're done.
+
+
+
+If you want a remote, and want to allow others to follow along in their
+browser then you're not done.
+
+5) Open config.json in an editor and change the password. This password will be
+required to connect the remote.
+
+6) Start the server by running:
+	npm update
+	node .
+
+8) Then present it at:
+	http://{your computer}:1234
+
+9) And control it from another device at:
+	http://{your computer}:1234/remote/
+
+
+You may view the presentation from multiple laptops, tablets, phones, etc at the
+same time. The remote will keep them all in sync.
+
+

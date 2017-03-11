@@ -6,8 +6,8 @@
     "express": "^4.15.2",
     "socket.io": "^1.7.3"
   },
-  "main": "server.js",
+  "main": "cowerpoint/server.js",
   "scripts":{
-	"start":"node ./server.js"
+	"start":"node ./cowerpoint/server.js"
   }
 }
