@@ -9,6 +9,7 @@ window.addEventListener("load", function() {
 	var next = document.querySelector("#next");
 	var back = document.querySelector("#back");
 	var forward = document.querySelector("#forward");
+	var reconnectTimer = null;
 
 	password.focus();
 
@@ -20,7 +21,12 @@ window.addEventListener("load", function() {
 		console.log("offline only");
 	}
 
-	connect.addEventListener("click", function() {
+	var sendAuth = function sendAuth(interactive) {
+		if (reconnectTimer) {
+			clearTimeout(reconnectTimer);
+			reconnectTimer = null;
+		}
+
 		var r = new XMLHttpRequest();
 		r.open("POST", "/remote/connect", true);
 		r.onreadystatechange = function() {
@@ -32,13 +38,29 @@ window.addEventListener("load", function() {
 				socket.emit("auth", { "token": token });
 				document.querySelector("#auth").classList.toggle("hidden", true);
 				document.querySelector("#control").classList.toggle("hidden", false);
-			} else {
+			} else if (interactive) {
 				alert("Nope.");
 			}
 		};
 		r.send(JSON.stringify({
 			password: password.value
 		}));
+	};
+
+	var reconnect = function reconnect() {
+		if (reconnectTimer) {
+			clearTimeout(reconnectTimer);
+			reconnectTimer = null;
+		}
+
+		reconnectTimer = setInterval(function() {
+			console.log('Trying to connect');
+			socket.connect();
+		}, 333);
+	};
+
+	connect.addEventListener("click", function() {
+		sendAuth(true);
 	});
 
 	buzz.addEventListener("click", function() {
@@ -72,4 +94,10 @@ window.addEventListener("load", function() {
 	socket.on("next", pagechange);
 	socket.on("back", pagechange);
 	socket.on("forward", pagechange);
+
+	socket.on("disconnect", reconnect);
+	socket.on("connect", function() {
+		sendAuth(false);
+	});
 });
+

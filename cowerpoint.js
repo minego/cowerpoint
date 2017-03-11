@@ -115,6 +115,25 @@ var Slides = function() {
 		socket.on("show", function(data) {
 			this.show(data.page, true);
 		}.bind(this));
+
+		var reconnectTimer = null;
+		socket.on("disconnect", function() {
+			if (reconnectTimer) {
+				clearTimeout(reconnectTimer);
+				reconnectTimer = null;
+			}
+			reconnectTimer = setInterval(function() {
+				console.log('Trying to connect');
+				socket.connect();
+			}, 333);
+		});
+
+		socket.on("connect", function() {
+			if (reconnectTimer) {
+				clearTimeout(reconnectTimer);
+				reconnectTimer = null;
+			}
+		});
 	} catch(ignore) {
 		console.log("Remote unavailable");
 	}
