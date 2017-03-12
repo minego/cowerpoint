@@ -25,6 +25,7 @@ var Slides = function() {
 			switch (e.target.nodeName) {
 				case 'A':
 				case 'INPUT':
+				case 'PRE':
 					return(false);
 
 				default:
@@ -52,6 +53,7 @@ var Slides = function() {
 			case 40: /* down	*/
 			case 32: /* space	*/
 			case 83: /* s       */
+			case 78: /* n		*/
 				e.stopPropagation();
 				e.preventDefault();
 				return false;
@@ -88,6 +90,11 @@ var Slides = function() {
 					this.buzz();
 				}
 				break;
+
+			case 78: /* n		*/
+				this.container.classList.toggle("presenter");
+				break;
+
 		}
 	}.bind(this), false);
 

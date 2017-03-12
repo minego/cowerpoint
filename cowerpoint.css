@@ -37,6 +37,17 @@ body
 	left:						30px;
 }
 
+#slides .presenter-note
+{
+	display:					none;
+}
+
+#slides.presenter .presenter-note
+{
+	display:					inline-block;
+	background:					pink;
+}
+
 #slides > div
 {
 	position:					absolute;
