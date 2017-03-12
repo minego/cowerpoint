@@ -115,6 +115,27 @@ var Slides = function() {
 		window.scrollTo(0, 0);
 	});
 
+	var touchStartX = NaN;
+	var touchEndX	= NaN;
+	document.addEventListener('touchstart', function(e) {
+		touchStartX = e.touches[0].clientX;
+	});
+	document.addEventListener('touchmove', function(e) {
+		touchEndX = e.touches[0].clientX;
+	});
+	document.addEventListener('touchend', function(e) {
+		if (Math.abs(touchStartX - touchEndX) < 50) {
+			/* Not a significant enough slide */
+			return;
+		}
+
+		if (touchEndX < touchStartX) {
+			this.next();
+		} else {
+			this.prev();
+		}
+	}.bind(this));
+
 	index = parseInt(window.location.hash.slice(1));
 	if (isNaN(index) || index < 1) {
 		index = 1;
