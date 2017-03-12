@@ -2,6 +2,7 @@
 var Slides = function() {
 	var index;
 
+	this.container	= document.querySelector("#slides");
 	this.slides		= document.querySelectorAll("#slides > div");
 	this.showing	= NaN;
 	this.stripcount	= 0;
@@ -302,20 +303,19 @@ show: function show(index, instant)
 	*/
 	var seen = false;
 
+	this.container.classList.remove("slidein");
 	for (var i = 0, s; s = this.slides[i]; i++) {
-		s.classList.remove("slidein");
-
 		if (s === oldslide) {
-			s.style.left		= '0px';
-			s.style.overflowY	= 'auto';
+			s.classList.remove("left");
+			s.classList.remove("right");
 
-			seen				= true;
+			seen = true;
 		} else if (!seen) {
-			s.style.left		= '-200%';
-			s.style.overflowY	= 'hidden';
+			s.classList.add("left");
+			s.classList.remove("right");
 		} else {
-			s.style.left		= '200%';
-			s.style.overflowY	= 'hidden';
+			s.classList.remove("left");
+			s.classList.add("right");
 		}
 	}
 
@@ -325,23 +325,24 @@ show: function show(index, instant)
 		instant = true;
 	}
 
+	if (!instant) {
+		this.container.classList.add("slidein");
+	}
+	this.container.classList.add("ready");
+
 	seen = false;
 	for (var i = 0, s; s = this.slides[i]; i++) {
-		if (!instant) {
-			s.classList.add("slidein");
-		}
-
 		if (s === newslide) {
-			s.style.left		= '0px';
-			s.style.overflowY	= 'auto';
+			s.classList.remove("left");
+			s.classList.remove("right");
 
-			seen				= true;
+			seen = true;
 		} else if (!seen) {
-			s.style.left		= '-200%';
-			s.style.overflowY	= 'hidden';
+			s.classList.add("left");
+			s.classList.remove("right");
 		} else {
-			s.style.left		= '200%';
-			s.style.overflowY	= 'hidden';
+			s.classList.remove("left");
+			s.classList.add("right");
 		}
 	}
 

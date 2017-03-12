@@ -47,10 +47,38 @@ body
 	width:						100%;
 }
 
-#slides > div.slidein
+#slides > div
 {
-	transition:					left 1s, display 1s;
-	-webkit-transition:			left 1s, display 1s;
+	display:					none;
+}
+
+#slides.ready > div
+{
+	display:					block;
+}
+
+#slides.slidein > div
+{
+	transition:					left 1s;
+	-webkit-transition:			left 1s;
+}
+
+#slides > div
+{
+	left:						0px;
+	overflow-Y:					auto;
+}
+
+#slides > div.left
+{
+	left:						-200%;
+	overflow-Y:					hidden;
+}
+
+#slides > div.right
+{
+	left:						200%;
+	overflow-Y:					hidden;
 }
 
 #buzzer
