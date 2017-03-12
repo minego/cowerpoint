@@ -49,8 +49,8 @@ body
 
 #slides > div.slidein
 {
-	transition:					left 1s;
-	-webkit-transition:			left 1s;
+	transition:					left 1s, display 1s;
+	-webkit-transition:			left 1s, display 1s;
 }
 
 #buzzer

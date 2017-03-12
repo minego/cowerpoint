@@ -6,17 +6,37 @@ var Slides = function() {
 	this.showing	= NaN;
 	this.stripcount	= 0;
 	this.curslide	= null;
-
+	this.socket		= null;
+	this.setupdiv	= null;
+	this.setuppass	= null;
 
 	window.addEventListener('hashchange', function(e) {
 		var index = parseInt(window.location.hash.slice(1));
 
-		if (!isNaN(index)) {
+		if (!isNaN(index) && index != this.showing) {
 			this.show(index, true);
 		}
 	}.bind(this), false);
 
+	function checkTarget(e)
+	{
+		if (e && e.target) {
+			switch (e.target.nodeName) {
+				case 'A':
+				case 'INPUT':
+					return(false);
+
+				default:
+					return(true);
+			}
+		}
+	}
+
 	window.addEventListener('keydown', function(e) {
+		if (!checkTarget(e)) {
+			return;
+		}
+
 		switch (e.which) {
 			case 32: /* space */
 				e.stopPropagation();
@@ -38,6 +58,10 @@ var Slides = function() {
 	});
 
 	window.addEventListener('keyup', function(e) {
+		if (!checkTarget(e)) {
+			return;
+		}
+
 		e.preventDefault();
 
 		switch (e.which) {
@@ -57,15 +81,20 @@ var Slides = function() {
 				this.next();
 				break;
 			case 83: /* s       */
-				this.buzz();
+				if (this.token) {
+					socket.emit("buzz", { "token": this.token });
+				} else {
+					this.buzz();
+				}
 				break;
 		}
 	}.bind(this), false);
 
 	window.addEventListener('click', function(e) {
-		if (e && e.target && 'A' == e.target.nodeName) {
+		if (!checkTarget(e)) {
 			return;
 		}
+
 		e.preventDefault();
 
 		if (e.button === 0) {
@@ -80,7 +109,7 @@ var Slides = function() {
 	}.bind(this), false);
 
 	index = parseInt(window.location.hash.slice(1));
-	if (isNaN(index)) {
+	if (isNaN(index) || index < 1) {
 		index = 1;
 	}
 
@@ -106,13 +135,13 @@ var Slides = function() {
 			this.buzz();
 		}.bind(this));
 		socket.on("next", function(data) {
-			this.next(data.page);
+			this.show(data.page);
 		}.bind(this));
 		socket.on("back", function(data) {
-			this.prev(data.page);
+			this.show(data.page);
 		}.bind(this));
 		socket.on("forward", function(data) {
-			this.next(data.page);
+			this.show(data.page);
 		}.bind(this));
 		socket.on("show", function(data) {
 			this.show(data.page, true);
@@ -135,9 +164,45 @@ var Slides = function() {
 				clearTimeout(reconnectTimer);
 				reconnectTimer = null;
 			}
-		});
+
+			if (this.setuppass && this.setuppass.value.length > 0) {
+				this.auth(this.setuppass.value);
+			}
+		}.bind(this));
+
+		this.socket = socket;
 	} catch(ignore) {
 		console.log("Remote unavailable");
+
+		this.socket = null;
+	}
+
+	/*
+		Insert an extra slide before the real presentation to allow entering
+		a password to act as a presenter.
+
+		This slide only gets inserted if we have a socket.
+	*/
+	if (this.socket) {
+		this.setupdiv = document.createElement('div');
+
+		this.setupdiv.appendChild(document.createTextNode("Presenter password:"));
+		this.setupdiv.appendChild(document.createElement('br'));
+
+		this.setuppass = document.createElement('input');
+		this.setuppass.type = 'password';
+		this.setupdiv.appendChild(this.setuppass);
+
+
+		this.setuppass.addEventListener("change", function() {
+			this.auth(this.setuppass.value);
+			this.setuppass.blur();
+		}.bind(this));
+
+		document.querySelector("#slides").insertBefore(this.setupdiv, this.slides[0]);
+		this.slides = document.querySelectorAll("#slides > div");
+
+		this.show(this.showing);
 	}
 };
 
@@ -149,6 +214,22 @@ selectSlide: function selectSlide(index, select)
 	var slideidx	= 0;
 	var slide;
 	var striptease;
+
+	if (0 > index) {
+		return(null);
+	} else if (0 === index) {
+		if (this.setuppass) {
+			this.setuppass.focus();
+		}
+
+		return(this.setupdiv);
+	} else if (this.setupdiv) {
+		/*
+			Change the offset by one so that adding the setup div won't change
+			the offsets.
+		*/
+		count++;
+	}
 
 	/*
 		A slide may have multiple frames. Take that into account while finding
@@ -197,15 +278,12 @@ selectSlide: function selectSlide(index, select)
 	}
 },
 
-show: function show(index, instant, oldindex)
+show: function show(index, instant)
 {
 	var oldslide;
 	var newslide;
 	var striptease;
-
-	if (isNaN(oldindex)) {
-		oldindex = this.showing;
-	}
+	var oldindex = this.showing;
 
 	oldslide = this.selectSlide(oldindex, false);
 
@@ -222,57 +300,53 @@ show: function show(index, instant, oldindex)
 		Determine if this slide should be animated or instant. If either the new
 		or old slide is marked as "instant" then disable the animation.
 	*/
-	if (newslide !== oldslide) {
-		console.log("Slide:", oldindex, index);
+	var seen = false;
 
-		var seen = false;
+	for (var i = 0, s; s = this.slides[i]; i++) {
+		s.classList.remove("slidein");
 
-		for (var i = 0, s; s = this.slides[i]; i++) {
-			s.classList.remove("slidein");
+		if (s === oldslide) {
+			s.style.left		= '0px';
+			s.style.overflowY	= 'auto';
 
-			if (s === oldslide) {
-				s.style.left		= '0px';
-				s.style.overflowY	= 'auto';
+			seen				= true;
+		} else if (!seen) {
+			s.style.left		= '-200%';
+			s.style.overflowY	= 'hidden';
+		} else {
+			s.style.left		= '200%';
+			s.style.overflowY	= 'hidden';
+		}
+	}
 
-				seen				= true;
-			} else if (!seen) {
-				s.style.left		= '-200%';
-				s.style.overflowY	= 'hidden';
-			} else {
-				s.style.left		= '200%';
-				s.style.overflowY	= 'hidden';
-			}
+	if ((newslide && newslide.classList.contains("instant")) ||
+		(oldslide && oldslide.classList.contains("instant"))
+	) {
+		instant = true;
+	}
+
+	seen = false;
+	for (var i = 0, s; s = this.slides[i]; i++) {
+		if (!instant) {
+			s.classList.add("slidein");
 		}
 
-		if ((newslide && newslide.classList.contains("instant")) ||
-			(oldslide && oldslide.classList.contains("instant"))
-		) {
-			instant = true;
+		if (s === newslide) {
+			s.style.left		= '0px';
+			s.style.overflowY	= 'auto';
+
+			seen				= true;
+		} else if (!seen) {
+			s.style.left		= '-200%';
+			s.style.overflowY	= 'hidden';
+		} else {
+			s.style.left		= '200%';
+			s.style.overflowY	= 'hidden';
 		}
+	}
 
-		seen = false;
-		for (var i = 0, s; s = this.slides[i]; i++) {
-			if (!instant) {
-				s.classList.add("slidein");
-			}
-
-			if (s === newslide) {
-				s.style.left		= '0px';
-				s.style.overflowY	= 'auto';
-
-				seen				= true;
-			} else if (!seen) {
-				s.style.left		= '-200%';
-				s.style.overflowY	= 'hidden';
-			} else {
-				s.style.left		= '200%';
-				s.style.overflowY	= 'hidden';
-			}
-		}
-
-		if (newslide && oldslide) {
-			newslide.scrollTop = oldslide.scrollTop;
-		}
+	if (newslide && oldslide) {
+		newslide.scrollTop = oldslide.scrollTop;
 	}
 
 	if (this.striptease && this.striptease.length) {
@@ -291,24 +365,33 @@ show: function show(index, instant, oldindex)
 
 	this.curslide			= newslide;
 	this.showing			= index;
+
 	window.location.hash	= '#' + index;
 },
 
 next: function next(page)
 {
-	if (!isNaN(page)) {
-		this.show(page, false, page - 1);
+	if (isNaN(page)) {
+		page = this.showing + 1;
+	}
+
+	if (this.token) {
+		socket.emit("forward", { "token": this.token, "page": page });
 	} else {
-		this.show(this.showing + 1, false, this.showing);
+		this.show(page, false);
 	}
 },
 
 prev: function prev(page)
 {
-	if (!isNaN(page)) {
-		this.show(page, false, page + 1);
-	} else if (this.showing > 1) {
-		this.show(this.showing - 1, false, this.showing);
+	if (isNaN(page)) {
+		page = this.showing - 1;
+	}
+
+	if (this.token) {
+		socket.emit("forward", { "token": this.token, "page": page });
+	} else {
+		this.show(page, false);
 	}
 },
 
@@ -325,6 +408,31 @@ buzz: function buzz()
 	window.setTimeout(function() {
 		popup.className = "";
 	}, 2000);
+},
+
+auth: function auth(password)
+{
+	var r = new XMLHttpRequest();
+
+	r.open("POST", "/remote/connect", true);
+	r.onreadystatechange = function() {
+		if(r.readyState != 4 || r.status != 200) return;
+		var res = JSON.parse(r.responseText);
+		console.log(res);
+		if(res.token) {
+			this.token = res.token;
+			socket.emit("auth", { "token": this.token });
+
+			this.next();
+		} else {
+			this.token = null;
+			alert("Nope.");
+		}
+	}.bind(this);
+
+	r.send(JSON.stringify({
+		"password": password
+	}));
 }
 
 };
