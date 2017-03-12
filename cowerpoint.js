@@ -109,6 +109,12 @@ var Slides = function() {
 		this.prev();
 	}.bind(this), false);
 
+	window.addEventListener('scroll', function(e) {
+		e.preventDefault();
+
+		window.scrollTo(0, 0);
+	});
+
 	index = parseInt(window.location.hash.slice(1));
 	if (isNaN(index) || index < 1) {
 		index = 1;
