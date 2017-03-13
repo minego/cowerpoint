@@ -22,6 +22,7 @@ var Slides = function() {
 	function checkTarget(e)
 	{
 		if (e && e.target) {
+			if(e.target.className === "click_handle") return false;
 			switch (e.target.nodeName) {
 				case 'A':
 				case 'INPUT':
