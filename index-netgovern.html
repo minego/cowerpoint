@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+	<head>
+		<!-- Put your own title here -->
+		<title>cowerpoint</title>
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="viewport" content="initial-scale=1.0,user-scalable=no" />
+
+		<!-- CSS if you want to make your own -->
+		<link rel="stylesheet" href="cowerpoint.css" charset="utf-8" />
+		<!-- Include the Cowerpoint script -->
+		<script src="/socket.io/socket.io.js"></script> <!-- for remote -->
+		<script type="text/javascript" src="cowerpoint.js"></script>
+	</head>
+
+	<body>
+		<div id="slides" class="netgovern">
+			<!-- First slide -->
+			<div>
+			  <!-- First slide title -->
+				<h1>APID &amp; NodeJS</h1>
+			</div>
+			<!-- End of first slide -->
+			<div>
+				<h1>Header</h1>
+
+				<p>You can also use the arrow keys to go between slides</p>
+			</div>
+			<div>
+			  <div class="bigblock">
+				<h1>Header</h1>
+				NM-99999
+			  </div>
+			  <ul>
+				<li>list</li>
+				<li>list</li>
+				<li>list</li>
+			  </ul>
+
+				<p>You can also use the arrow keys to go between slides</p>
+			</div>
+			<div>
+				<h1>Really getting up to speed now</h1>
+
+				<p>Right click takes you back</p>
+			</div>
+			<div class="instant">
+				<h1>Easy to edit</h1>
+
+				<p>
+					Just add a div for each slide. Add your own CSS to make it
+					pretty (or don't).
+				</p>
+
+				<p>
+					Give a div <strong>class="instant"</strong> to have it
+					skip the animated transition.
+				</p>
+			</div>
+
+			<div>
+				<h1>Slowly reveal lists to add drama</h1>
+
+				<p>
+					Each click will reveal a bit more
+				</p>
+
+				<ul class="striptease">
+					<li>One</li>
+					<li>Two</li>
+					<li>3</li>
+					<li>Four</li>
+				</ul>
+			</div>
+
+			<div>
+				<h3>Thanks</h3>
+
+				<p>That's really about it.</p>
+
+				<center><img src="suckitdan.svg" width=200></center>
+			</div>
+		</div>
+		<div id="buzzer"><div id="buzzermiddle">
+			<img src="shh.jpg">
+			<audio preload="auto">
+			  <source src="buzzer.ogg" type="audio/ogg" />
+			  <source src="buzzer.mp3" type="audio/mp3" />
+			</audio>
+		</div></div>
+	</body>
+</html>
