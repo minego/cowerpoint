@@ -145,6 +145,14 @@ body
 	color: white;
 	margin-right: 2em;
 	text-align: center;
+	display: table;
+}
+#slides.netgovern > div .bigblock > .likenick {
+	display: table-cell;
+	vertical-align: middle;
+}
+#slides.netgovern > div .bigblock > .likenick h1 {
+	color: white;
 }
 #slides.netgovern::after {
 	/*    content: "netgovern";*/
