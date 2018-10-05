@@ -199,6 +199,7 @@ body
 #buzzer img {
 	max-width: 90vw;
 	max-height: 90vh;
+	box-shadow: 0 0 2em black;
 }
 #buzzer audio {
 	display: none;
