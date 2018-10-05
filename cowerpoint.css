@@ -147,6 +147,10 @@ body
 	text-align: center;
 	display: table;
 }
+#slides.netgovern > div .bigblock ~ ul, #slides.netgovern > div .bigblock ~ ol {
+	display: inline-block;
+	max-width: 60%;
+}
 #slides.netgovern > div .bigblock > .likenick {
 	display: table-cell;
 	vertical-align: middle;
