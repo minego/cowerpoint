@@ -1,6 +1,6 @@
 {
   "name": "cowerpoint",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "web-based alternative presentation tool",
   "dependencies": {
     "express": "^4.15.2",
